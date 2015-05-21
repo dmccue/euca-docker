@@ -1,0 +1,14 @@
+from centos:6.6
+
+env clchost=127.0.0.1
+
+run echo -e "[eucaconsole]\nname=eucaconsole\nbaseurl=http://downloads-cdn0.eucalyptus.com/software/eucalyptus/4.1/centos/6/x86_64/\nenabled=1" > /etc/yum.repos.d/eucaconsole.repo
+
+run yum install -y http://mirror.us.leaseweb.net/epel/6/i386/epel-release-6-8.noarch.rpm
+run yum clean all; yum install -y eucaconsole python-boto --nogpgcheck
+
+expose 8888/tcp
+
+cmd sed -i "s/^clchost.*=.*/clchost = ${clchost}/" /etc/eucaconsole/console.ini; \
+    service eucaconsole start; \
+    tail -f /var/log/eucaconsole.log
