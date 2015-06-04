@@ -1,0 +1,17 @@
+---
+- hosts: all
+  sudo: true
+  vars_files:
+    - vars/main.yml
+  pre_tasks:
+  - name: install libselinux
+    yum: name=libselinux-python state=latest
+  roles:
+    - common
+    - cc
+    - nc
+    - clc
+    - sc
+    - walrus
+  post_tasks:
+    - action: setup

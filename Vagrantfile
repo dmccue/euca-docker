@@ -1,3 +1,4 @@
+# David McCue 2015
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
@@ -59,7 +60,13 @@ Vagrant.configure(2) do |config|
     v.customize ["set", :id, "--nested-virt", "on", "--time-sync", "off"]
   end
 
-  config.vm.provision "shell", inline: "sudo bash <(curl -Ls eucalyptus.com/install)"
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "playbook/playbook.yml"
+    ansible.host_key_checking = false
+    ansible.extra_vars = "main.yml"
+    ansible.verbose = 'vv'
+  end
+  config.vm.provision "shell", path: "register.sh"
 
   #
   # View the documentation for the provider you are using for more
