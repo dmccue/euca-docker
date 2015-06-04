@@ -8,6 +8,7 @@ chmod 600 ~/.ssh/authorized_keys
 ssh-keyscan -H localhost >> ~/.ssh/known_hosts
 ssh-keyscan -H ${IP} >> ~/.ssh/known_hosts
 
+sleep 10
 echo Register API
 euca_conf --register-service -T user-api -H ${IP} -N API_135
 echo Register Walrus
@@ -20,14 +21,16 @@ echo Register Network Controller
 euca_conf --register-nodes ${IP}
 # Skip arbitrators
 
-#yum install -y eucalyptus-load-balancer-image eucalyptus-imaging-worker
+yum install -y eucalyptus-load-balancer-image #eucalyptus-imaging-worker
 cd ~; rm -f ~/admin.zip; euca_conf --get-credentials admin.zip; unzip -o admin.zip
 source ~/eucarc &>/dev/null
 echo Modify Storage Controller Partition
 euca-modify-property -p cluster01.storage.blockstoragemanager=overlay
 euca-describe-services | grep -c 'DISABLED|BROKEN'
 #euca-install-imaging-worker --install-default
-#euca-install-load-balancer --install-default
+euca-install-load-balancer --install-default
 euare-useraddloginprofile --region localadmin@localhost --as-account eucalyptus -u admin -p password
 euca-authorize -P tcp -p 22 default
 euca-authorize -P tcp -p 80 default
+
+eustore-install-image -b centos-testbucket -i 3471904862 --hypervisor kvm
