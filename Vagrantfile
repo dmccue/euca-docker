@@ -66,7 +66,7 @@ Vagrant.configure(2) do |config|
     ansible.extra_vars = "main.yml"
     ansible.verbose = 'vv'
   end
-  config.vm.provision "shell", path: "register.sh"
+  config.vm.provision "shell", path: "bootstrap.sh"
 
   #
   # View the documentation for the provider you are using for more

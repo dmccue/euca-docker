@@ -9,7 +9,7 @@ cd euca-docker
 
 Deploy
 ---
-vagrant destroy -y
+vagrant destroy -f
 vagrant up
 
 
