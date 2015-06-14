@@ -1,4 +1,4 @@
-VAGRANTIP=$(vagrant ssh-config | grep HostName | cut -d' ' -f4)
+#!/usr/bin/env bats
 CLOUDCONTROLLER_HOST=${VAGRANTIP}
 WALRUS_HOST=${VAGRANTIP}
 STORAGECONTROLLER_HOST=${VAGRANTIP}

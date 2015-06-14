@@ -1,23 +1,32 @@
 # euca-docker
 
+Tested against MACOS Yosemite 10.10.3 with Parallels 10.1.3
+
 Setup
----
-git clone https://github.com/dmccue/euca-docker
-cd euca-docker
-./setup.sh
+===========
+Install dependencies
+
+* git clone https://github.com/dmccue/euca-docker
+* cd euca-docker; ./setup.sh
 
 
 Deploy
----
-vagrant destroy -f
-vagrant up
+===========
+Startup eucalyptus cloud using ansible provisioner
+
+* vagrant destroy -f
+* vagrant up
 
 
 Test
----
-bats tests/services.bats
+===========
+Test all subcomponents are responding
+
+* VAGRANTIP=$(vagrant ssh-config | sed -En 's/.*HostName (.*)$/\1/p') ./tests/services.bats
 
 
-GUI
----
-./docker_eucaconsole.sh
+Startup GUI
+===========
+Start eucaconsole within a docker container
+
+* ./docker_eucaconsole.sh
