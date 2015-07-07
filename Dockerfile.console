@@ -1,0 +1,29 @@
+from eucalyptus/base:latest
+#tag eucalyptus/console:latest
+
+run yum update -y
+run groupadd -f eucaconsole; useradd -c 'Eucalyptus Console' -b /var/run -g eucaconsole eucaconsole
+run yum install -y nc eucaconsole
+run yum clean all
+
+env clc=
+expose 8888/tcp
+
+
+cmd [ -n "${clc}" ] && [[ "${clc}" =~ \: ]] || \
+      { \
+        echo Error: Please specify clc environment variable with colon delimiting host:port; \
+        echo Error: e.g. '127.0.0.1\:8777'; \
+        exit 1; \
+      }; \
+    clchost=$(echo ${clc} | cut -d: -f1); \
+    clcport=$(echo ${clc} | cut -d: -f2); \
+    sed -i "s/^clchost.*=.*/clchost = ${clchost}/;s/^clcport.*=.*/clcport = ${clcport}/" /etc/eucaconsole/console.ini; \
+    nc -zw1 ${clchost} ${clcport} && \
+      echo Info: Success! CLC port ${clchost}:${clcport} open || \
+      { \
+        echo Error: Unable to connect to CLC port ${clchost}:${clcport}; \
+        exit 1; \
+      }; \
+    service eucaconsole start; \
+    tail -f /var/log/eucaconsole.log

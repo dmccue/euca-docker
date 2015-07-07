@@ -1,35 +1,48 @@
 #!/usr/bin/env bats
-CLOUDCONTROLLER_HOST=${VAGRANTIP}
 WALRUS_HOST=${VAGRANTIP}
+CLOUDCONTROLLER_HOST=${VAGRANTIP}
 STORAGECONTROLLER_HOST=${VAGRANTIP}
 CLUSTERCONTROLLER_HOST=${VAGRANTIP}
 NETWORKCONTROLLER_HOST=${VAGRANTIP}
 
-# The CLC is listening on ports 8443 and 8773
-@test "clc - 8443" {
+#nc -vzw1 ${VAGRANTIP} 8000-9000 2>&1| grep open$
+#nc -vzw1 ${VAGRANTIP} 53 8443 8773 8774 8777 8779 2>&1| grep open$
+
+@test "22/tcp - ssh connectivity" {
+  nc -zw1 $VAGRANTIP 22
+}
+@test "53/tcp - eucalpytus-cloud dns" {
+  nc -zw1 $VAGRANTIP 53
+}
+@test "8777/tcp - postgres" {
+  nc -zw1 $VAGRANTIP 8777
+}
+@test "8779/tcp - eucalyptus-cloud" {
+  nc -zw1 $VAGRANTIP 8779
+}
+
+
+
+@test "8443/tcp - clc" {
   nc -zw1 $CLOUDCONTROLLER_HOST 8443
 }
-@test "clc - 8773" {
+@test "8773/tcp - clc" {
   nc -zw1 $CLOUDCONTROLLER_HOST 8773
 }
 
-# Walrus is listening on port 8773
-@test "walrus - 8773" {
+@test "8773/tcp - walrus" {
   nc -zw1 $WALRUS_HOST 8773
 }
 
-# The SC is listening on port 8773
-@test "sc - 8773" {
+@test "8773/tcp - sc" {
   nc -zw1 $STORAGECONTROLLER_HOST 8773
 }
 
-# The CC is listening on port 8774
-@test "cc - 8774" {
+@test "8774/tcp - cc" {
   nc -zw1 $CLUSTERCONTROLLER_HOST 8774
 }
 
-# The NCs are listening on port 8775
-@test "nc - 8775" {
+@test "8775/tcp - nc" {
   nc -zw1 $NETWORKCONTROLLER_HOST 8775
 }
 

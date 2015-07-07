@@ -1,0 +1,15 @@
+from centos:6.6
+#tag eucalyptus/base:latest
+
+env http_proxy=
+env https_proxy=
+env euca_version 4.1
+env euca2ools_version 3.2
+run yum install -y \
+        http://downloads.eucalyptus.com/software/eucalyptus/${euca_version}/centos/6/x86_64/epel-release-6.noarch.rpm \
+        http://downloads.eucalyptus.com/software/eucalyptus/${euca_version}/centos/6/x86_64/eucalyptus-release-${euca_version}.el6.noarch.rpm \
+        http://downloads.eucalyptus.com/software/euca2ools/${euca2ools_version}/centos/6/x86_64/euca2ools-release-${euca2ools_version}.el6.noarch.rpm
+
+run yum clean all
+run yum update -y
+run yum clean all

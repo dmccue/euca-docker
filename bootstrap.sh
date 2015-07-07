@@ -10,7 +10,7 @@ service ntpd start
 chkconfig ntpd on
 
 echo SSH setup
-mkdir -p ~/.ssh; chmod 700 ~/.ssh 
+mkdir -p ~/.ssh; chmod 700 ~/.ssh
 [ ! -f "~/.ssh/id_rsa" ] && ssh-keygen -t rsa -f /root/.ssh/id_rsa -P ''
 grep -f ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys &>/dev/null || cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
@@ -20,7 +20,7 @@ nc -zw15 localhost 8773
 
 
 echo Register Walrus
-until euca_conf --register-walrusbackend --partition walrus --host ${IP} --component walrus-$(hostname -s); do 
+until euca_conf --register-walrusbackend --partition walrus --host ${IP} --component walrus-$(hostname -s); do
   sleep 1
 done
 echo Register Cloud Controller
@@ -70,4 +70,3 @@ echo Install Loadbalancer
 euca-install-load-balancer --install-default
 #echo Install imaging worker
 #euca-install-imaging-worker --install-default
-

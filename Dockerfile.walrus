@@ -1,0 +1,13 @@
+from eucalyptus/base:latest
+#tag eucalyptus/walrus:latest
+
+run yum update -y
+run yum install -y nc eucalyptus-walrus ntp
+run yum clean all
+
+expose 8774/tcp
+
+cmd sed -i 's/^server/#server/' /etc/ntp.conf; ntpd -p /var/run/ntpd.pid; \
+    service eucalyptus-cloud start; \
+    service ntpd stop; \
+    tail -f /var/log/eucalyptus/*.log

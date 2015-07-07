@@ -1,0 +1,68 @@
+from eucalyptus/base:latest
+#tag eucalyptus/clc:latest
+
+run yum update -y
+run yum install -y nc eucalyptus-cloud unzip xz ntp
+run yum clean all
+run sed -i 's/^server/#server/' /etc/ntp.conf; \
+    mv /etc/eucalyptus/cloud.d/init.d/01_pg_kernel_params /root; \
+    chkconfig iptables off; \
+    service iptables stop 2>/dev/null || true
+
+#run sed -i 's/^EUCA_USER.*/EUCA_USER="root"/' /etc/eucalyptus/eucalyptus.conf; \
+#    sed -i 's/^server/#server/' /etc/ntp.conf; ntpd -p /var/run/ntpd.pid; \
+#    mv /etc/eucalyptus/cloud.d/init.d/01_pg_kernel_params /root; \
+#    service postgresql-9.2 initdb; /etc/init.d/postgresql-9.2 start; \
+#    euca_conf --initialize
+
+#ufs ssl
+expose 8443/tcp
+#ufs
+expose 8773/tcp
+#postgres
+#expose 8777/tcp
+
+cmd ntpd -p /var/run/ntpd.pid; \
+    euca_conf --initialize || exit 1; \
+    service eucalyptus-cloud start; \
+    while [ 1 ]; do tail -30 /var/log/eucalyptus/cloud-output.log | grep 'Web services restart complete' && break || sleep 2; done; \
+    euca_conf --register-service -T user-api -H $(hostname -i) -N api-endpoint-001; \
+    while [ 1 ]; do tail -30 /var/log/eucalyptus/cloud-output.log | grep COMPONENT_SERVICE_REGISTERED\:euare.*INITIALIZED$ && break || sleep 2; done; \
+    cd /root; euca_conf --get-credentials=admin.zip; unzip admin.zip; \
+    echo export S3_URL="\"http://$(hostname -i):8773/services/objectstorage\"" >> /root/eucarc; \
+    echo "source /root/eucarc; source /root/iamrc" >> /root/.bashrc; \
+    source /root/eucarc; source /root/iamrc; \
+    euare-accountcreate -a demo; euare-useraddloginprofile --as-account demo -u admin -p password; \
+    euare-useraddloginprofile --as-account eucalyptus -u admin -p password; \
+    euare-userupdateinfo --as-account eucalyptus -u admin -k email -i test@test.com; \
+    euca_conf --register-cluster --partition az1 --component cluster1 --host 1.2.3.4; \
+    euca_conf --register-sc --partition az1 --component storage1 --host 1.2.3.4; \
+    euca-modify-property -p partition1.storage.blockstoragemanager=das; \
+    euca_conf --register-walrusbackend --partition az1 --component walrus1 --host 1.2.3.4; \
+    euca-modify-property -p objectstorage.providerclient=walrus; \
+    euca_conf --register-nodes "1.2.3.4"; \
+    tail -f /var/log/eucalyptus/*.log
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------
+# install xz for emi support
+#netstat -antp | grep 0.0.0.0 | grep -c "8443\|8773"; \
+#run yum install -y git selinux-policy
+#run sed -i 's/^\(PROC_IPTABLES_NAMES=\).*/\1/' /etc/init.d/iptables
+#yum install -y epel-release
+#run git clone https://github.com/eucalyptus/playbook.git && cd playbook; \
+#    echo -e "[local]\nlocalhost\n[clc]\nlocalhost\n[walrus]\nlocalhost\n[cc]\nlocalhost\n[sc]\nlocalhost\n[nc]\n" > hosts; \
+#    ansible-playbook -c local -i hosts site.yml
+#run yum install -y xz ntp eucalyptus-cloud #eucalyptus-service-image
+#run yum clean all; yum install -y euca2ools eucalyptus-cloud --nogpgcheck
+#run tuned-adm profile latency-performance
+#run /usr/sbin/euca_conf --initialize creates=/var/lib/eucalyptus/keys/euca.p12
+#cmd service eucalyptus-cloud start; /
+#tail -f /var/log/*.log
+#cmd sed -i "s/^clchost.*=.*/clchost = ${clchost}/" /etc/eucaconsole/console.ini; \
+#    nc -zw1 ${clchost} 8773 && echo Info: Cloud controller port open!; \
+#    service eucaconsole start; \
+#    tail -f /var/log/eucaconsole.log
